@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" href="/css/bootstrap.css" />
+        <link rel="stylesheet" href="/css/text.css" />
+        <style>
+            .toorbar {
+                height: 34px;
+                width: 100%;
+                position: fixed;
+                background-color: #efefef;
+                top: 0px;
+                left: 0px;
+                -webkit-app-region: drag;
+                text-align: right;
+                z-index: -1;
+            }
+            .screen{
+                z-index: 10;
+            }
+            .close {
+                position: fixed;
+                top: 1px;
+                right: 5px;
+                z-index: 10;
+                -webkit-app-region: no-drag;
+                opacity: 1;
+            }
+            #text {
+                //box-shadow: 0px 0px 10px #bfbfbf;
+            }
+            #main {
+                width: 600px;
+            }
+        </style>
+        <script src="js/jquery.js"></script>
+        <script src="js/file.js"></script>
+        <script>
+            var index = global.books[0].bookmark;
+            var isFullScreen = false;
+
+            function fullScreen() {
+                var gui = require("nw.gui");
+                var win = gui.Window.get();
+                if (isFullScreen) {
+                    $("#btn-full").html("全屏");
+                    isFullScreen = false;
+                    win.leaveFullscreen();
+                    console.log(win.height);
+                    $(".toorbar").show();
+                    $(".close").show();
+                    $("#main").css("margin-top", "80px");
+                    $("#nav").css("margin-top", "34px");
+                    $("#text-div").css("height", "560px");
+                } else {
+                    $("#btn-full").html("退出全屏");
+                    isFullScreen = true;
+                    win.enterFullscreen();
+                    console.log(win.height);
+                    $(".toorbar").hide();
+                    $(".close").hide();
+                    $("#main").css("margin-top", "40px");
+                    $("#nav").css("margin-top", "0px");
+                    $("#text-div").css("height", "670px");
+                }
+            }
+            function closeWindow() {
+                var json = [{
+                    "bookname" : global.books[0].bookname,
+                    "filename" : global.books[0].filename,
+                    "bookmark" : global.books[0].bookmark
+                }];
+                var fs = require("fs");
+                console.log(global.config);
+                fs.writeFileSync('books.json', JSON.stringify(json), function(err) {
+                    if (err) {
+                        console.log("文件写入失败");
+                    }
+                });
+                fs.writeFileSync('config.json', JSON.stringify(global.config), function(err) {
+                    if (err) {
+                        console.log("文件写入失败");
+                    }
+                });
+                window.close();
+            }
+            function enlargeFont() {
+                var fontSize = parseInt($("#text").css("font-size").match(/[0-9]+/g)[0]);
+                if (fontSize > 30) return;
+                fontSize += 2;
+                fontSize += "px";
+                $("#text").css("font-size", fontSize);
+                global.config.fontsize = $("#text").css("font-size");
+            }
+            function shrinkFont() {
+                var fontSize = parseInt($("#text").css("font-size").match(/[0-9]+/g)[0]);
+                if (fontSize <= 13) return;
+                fontSize -= 2;
+                fontSize += "px";
+                $("#text").css("font-size", fontSize);
+                global.config.fontsize = $("#text").css("font-size");
+            }
+            function lastArticle() {
+                if (index == 0) return;
+                index--;
+                global.books[0].bookmark = index;
+                createTitle();
+                createText();
+            }
+            function nextArticle() {
+                if (index == global.books[0].articles.length-1) return;
+                index++;
+                global.books[0].bookmark = index;
+                createTitle();
+                createText();
+            }
+            function createTitle() {
+                var titleDiv = $("#title");
+                titleDiv.html(global.books[0].articles[index].title);
+            }
+            function createText() {
+                var textDiv = $("#text");
+                var begin = global.books[0].articles[index].textbegin;
+                var end = global.books[0].articles[index+1].index-1;
+                var text = global.books[0].text.substring(begin, end);
+                textDiv.html(text.replace(/[\n]/g, "<br><br>"));
+                textDiv.scrollTop(0);
+                $("body").scrollTop(0);
+            }
+            window.onload = function() {
+                $("#text").css("font-size", global.config.fontsize);
+                createTitle();
+                createText();
+
+                $("body").keyup(function(event) {
+                    if (event.keyCode == 37/* || event.keyCode == 38*/) {
+                        lastArticle();
+                    } else if (event.keyCode == 39/* || event.keyCode == 40*/) {
+                        nextArtucle();
+                    } else if (event.keyCode == 38) {               // 向上翻页
+                        var pos = $("#text").scrollTop();
+                        var addon = parseInt($("#text").css("height").match(/[0-9]+/)[0]) - 10;
+                        $("#text").animate({scrollTop: pos-addon}, "fast");
+                    } else if (event.keyCode == 40) {               // 向下翻页
+                        var pos = $("#text").scrollTop();
+                        var addon = parseInt($("#text").css("height").match(/[0-9]+/)[0]) - 20;
+                        $("#text").animate({scrollTop: pos+addon}, "fast");
+                    } else if (event.keyCode == 122) {
+                        fullScreen();
+                    }
+
+                });
+            }
+        </script>
+    </head>
+    <body style="background-color: gray">
+    <div class="toorbar">
+    </div>
+    <img class="close" onclick="closeWindow()" src="images/close.png">
+    <div id="main" class="container" style="margin-top: 80px; background-color: white;">
+        <nav id="nav" class="navbar navbar-default navbar-fixed-top" style="margin-top: 34px; text-align: center;">
+            <div class="container-fluid">
+                <div class="navbar-header" style="text-align: center;">
+                    <button class="btn btn-default navbar-btn" onclick="lastArticle()">上一章</button>
+                    <a href="index.html" class="btn btn-default navbar-btn" role="button">返回目录</a>
+                    <button class="btn btn-default navbar-btn" onclick="nextArticle()">下一章</button>
+                    <button class="btn btn-default navbar-btn" onclick="enlargeFont()">放大字体</button>
+                    <button class="btn btn-default navbar-btn" onclick="shrinkFont()">缩小字体</button>
+                    <button id="btn-full" class="btn btn-default navbar-btn" onclick="fullScreen()">全屏</button>
+                </div>
+            </div>
+        </nav>
+        <h3 id="title"></h3>
+        <div id="text-div" style="width: 100%; height: 550px; word-wrap: break-word; padding-bottom: 10px;">
+            <pre id="text" style="background-color: transparent; width: 100%; height: 100%; word-wrap: break-word; white-space: pre-wrap; line-height: 1.25em;">
+            </pre>
+        </div>
+        <button class="btn btn-default" onclick="lastArticle()">上一章</button>
+        <a class="btn btn-default" href="index.html">目录</a>
+        <button class="btn btn-default" onclick="nextArticle()">下一章</button>
+    </div>
+    </body>
+</html>

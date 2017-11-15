@@ -1,0 +1,36 @@
+#text::-webkit-scrollbar {
+    width: 10px;
+    height: 16px;
+    background-color: white;
+}
+#text::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px gray;
+    border-radius: 10px;
+    background-color: white;
+}
+#text::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px gray;
+    background-color: #97d47c;
+    width: 5px;
+    height: 5px;
+}
+.navbar .navbar-default {
+    float: none;
+}
+#text-div {
+    -webkit-box-shadow: 0 0 20px #dddddd;
+    border: 0 solid white;
+    padding: 5px;
+    border-radius: 5px;
+    background-image: url("../images/back2.jpg");
+    background-size: 100%;
+    margin-bottom: 10px;
+}
+#text {
+    border: 0 solid white;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
