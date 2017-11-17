@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>CRAZYMAD BOOK</title>
+		<style>
+		p {
+			word-wrap: break-word;
+			width: 100%;
+		}
+		</style>
+		<script src="js/init.js"></script>
+		<script src="js/file.js"></script>
+		<script src="js/jquery.js"></script>
+		<script>
+			var bookindex = global.bookindex;
+			function openArticle(index) {
+			    global.books[bookindex].bookmark = index;
+				window.location = "article.html";
+			}
+			function createPage() {
+				$("#bookname").html(global.books[bookindex].bookname);
+                var res = global.books[bookindex].articles;
+                createList(res);
+			}
+            function createList(names) {
+                var titlesDiv = $("#titles");
+                var html = "";
+				for (var i = 0; i < names.length; i++) {
+                	html += "<a href='#' onclick='openArticle(" + i + ")'>" + names[i].title + "</a><br />";
+				}
+				titlesDiv.html(html);
+				$("#last").html("继续阅读: " + names[global.books[bookindex].bookmark].title);
+			}
+			window.onload = function() {
+			    bookindex = global.bookindex;
+                getTxtInfo(bookindex);
+                createPage();
+
+				$("body").keyup(function(event) {
+					if (event.keyCode == 37 || event.keyCode == 38) {
+						console.log("上一章");
+						//alert("上一章");
+					} else if (event.keyCode == 39 || event.keyCode == 40) {
+						console.log("下一章");
+						//alert("下一章");
+					}
+				});
+				console.log(global);
+			}
+		</script>
+	</head>
+	<body>
+    <div class="container">
+		<h1 id="bookname"></h1>
+		<a href="index.html">返回书架</a>
+		<h2>目录</h2>
+		<a id="last" href="article.html">继续阅读:</a><br/><br/>
+		<div id="titles"></div>
+	</div>
+	</body>
+</html>

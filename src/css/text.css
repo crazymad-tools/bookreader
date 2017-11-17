@@ -1,3 +1,6 @@
+::-webkit-scrollbar {
+    display: none;
+}
 #text::-webkit-scrollbar {
     width: 10px;
     height: 16px;
@@ -26,11 +29,31 @@
     background-image: url("../images/back2.jpg");
     background-size: 100%;
     margin-bottom: 10px;
+    //overflow: scroll;
 }
 #text {
     border: 0 solid white;
 }
 
-::-webkit-scrollbar {
-    display: none;
+.nograg {
+    -webkit-app-region: no-drag;
+}
+.close {
+    position: absolute;
+    top: 9px;
+    right: 5px;
+    z-index: 10;
+    -webkit-app-region: no-drag;
+    opacity: 1;
+}
+.toorbar {
+    height: 34px;
+    width: 100%;
+    position: fixed;
+    background-color: #efefef;
+    top: 0px;
+    left: 0px;
+    -webkit-app-region: drag;
+    text-align: right;
+    z-index: -1;
 }

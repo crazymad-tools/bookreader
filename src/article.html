@@ -5,85 +5,96 @@
         <link rel="stylesheet" href="/css/bootstrap.css" />
         <link rel="stylesheet" href="/css/text.css" />
         <style>
-            .toorbar {
-                height: 34px;
-                width: 100%;
-                position: fixed;
-                background-color: #efefef;
-                top: 0px;
-                left: 0px;
-                -webkit-app-region: drag;
-                text-align: right;
-                z-index: -1;
-            }
-            .screen{
-                z-index: 10;
-            }
-            .close {
-                position: fixed;
-                top: 1px;
-                right: 5px;
-                z-index: 10;
-                -webkit-app-region: no-drag;
-                opacity: 1;
-            }
             #text {
                 //box-shadow: 0px 0px 10px #bfbfbf;
             }
             #main {
                 width: 600px;
             }
+            #clock {
+                position: absolute;
+                top: 30px;
+                right: -310px;
+                width: 250px;
+                height: 100px;
+                background-color: #c5c5c5;
+                font-size: 75px;
+                text-shadow: 3px 3px 10px gray;
+                line-height: 125px;
+                text-align: center;
+                font-family: clock;
+                border-radius: 5px;
+                -webkit-box-shadow: inset 0 0 10px #545454;
+            }
+            #clock::before {
+                content: "";
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                width: 270px;
+                height: 120px;
+                background-color: white;
+                -webkit-box-shadow: 3px 3px 15px black;
+                border-radius: 5px;
+                z-index: -1;
+            }
+            #contorl {
+                position: absolute;
+                top: 170px;
+                right: -100px;
+                width: 100px;
+            }
+            @font-face {
+                font-family: clock;
+                src: url("fonts/13pxbus.ttf");
+            }
+            li {
+                list-style: none;
+                padding: 0px 10px 0px 10px;
+                margin-bottom: 10px;
+            }
+            ul {
+                padding-left: 0px;
+            }
+            .contorl-item {
+                margin-left: 0px;
+                -webkit-transition: margin-left 0.2s;
+            }
+            .contorl-item:hover {
+                margin-left: -10px;
+            }
+            .li-btn{
+                font-size: 20px;
+                font-weight: 600;
+                -webkit-box-shadow: 3px 3px 15px black;
+            }
         </style>
         <script src="js/jquery.js"></script>
         <script src="js/file.js"></script>
+        <script src="js/base.js"></script>
+        <script src="js/init.js"></script>
         <script>
-            var index = global.books[0].bookmark;
-            var isFullScreen = false;
+            var bookindex = global.bookindex;
+            var index = global.books[bookindex].bookmark;
 
             function fullScreen() {
                 var gui = require("nw.gui");
                 var win = gui.Window.get();
-                if (isFullScreen) {
-                    $("#btn-full").html("全屏");
-                    isFullScreen = false;
+                if (global.isFullScreen) {
+                    global.isFullScreen = false;
                     win.leaveFullscreen();
                     console.log(win.height);
-                    $(".toorbar").show();
-                    $(".close").show();
-                    $("#main").css("margin-top", "80px");
-                    $("#nav").css("margin-top", "34px");
-                    $("#text-div").css("height", "560px");
+                    $("#main").css("margin-top", "50px");
+                    $("#text-div").css("height", "595px");
+                    $("#nav").show();
                 } else {
-                    $("#btn-full").html("退出全屏");
-                    isFullScreen = true;
+                    global.isFullScreen = true;
                     win.enterFullscreen();
                     console.log(win.height);
-                    $(".toorbar").hide();
-                    $(".close").hide();
-                    $("#main").css("margin-top", "40px");
-                    $("#nav").css("margin-top", "0px");
-                    $("#text-div").css("height", "670px");
+                    $("#main").css("margin-top", "0px");
+                    $("#text-div").css("height", "702px");
+                    $("#nav").hide();
                 }
-            }
-            function closeWindow() {
-                var json = [{
-                    "bookname" : global.books[0].bookname,
-                    "filename" : global.books[0].filename,
-                    "bookmark" : global.books[0].bookmark
-                }];
-                var fs = require("fs");
-                console.log(global.config);
-                fs.writeFileSync('books.json', JSON.stringify(json), function(err) {
-                    if (err) {
-                        console.log("文件写入失败");
-                    }
-                });
-                fs.writeFileSync('config.json', JSON.stringify(global.config), function(err) {
-                    if (err) {
-                        console.log("文件写入失败");
-                    }
-                });
-                window.close();
             }
             function enlargeFont() {
                 var fontSize = parseInt($("#text").css("font-size").match(/[0-9]+/g)[0]);
@@ -104,81 +115,121 @@
             function lastArticle() {
                 if (index == 0) return;
                 index--;
-                global.books[0].bookmark = index;
+                global.books[bookindex].bookmark = index;
                 createTitle();
                 createText();
             }
             function nextArticle() {
-                if (index == global.books[0].articles.length-1) return;
+                if (index == global.books[bookindex].articles.length-1) return;
                 index++;
-                global.books[0].bookmark = index;
+                global.books[bookindex].bookmark = index;
+                //console.log(global.books[bookindex].bookmark);
                 createTitle();
                 createText();
             }
             function createTitle() {
                 var titleDiv = $("#title");
-                titleDiv.html(global.books[0].articles[index].title);
+                titleDiv.html(global.books[bookindex].articles[index].title);
+                console.log(titleDiv.height());
             }
             function createText() {
                 var textDiv = $("#text");
-                var begin = global.books[0].articles[index].textbegin;
-                var end = global.books[0].articles[index+1].index-1;
-                var text = global.books[0].text.substring(begin, end);
+                var begin = global.books[bookindex].articles[index].textbegin;
+                var end = global.books[bookindex].articles[index+1].index-1;
+                var text = global.books[bookindex].text.substring(begin, end);
                 textDiv.html(text.replace(/[\n]/g, "<br><br>"));
                 textDiv.scrollTop(0);
-                $("body").scrollTop(0);
+                window.scrollTo(0, 0);
             }
             window.onload = function() {
                 $("#text").css("font-size", global.config.fontsize);
                 createTitle();
                 createText();
+                var showDateUpdate = new ShowDateUpdate($("#clock"));
+                console.log($("#text").scrollHeight);
 
+                $("#text").scroll(function() {
+                    var text = $("#text").get(0);//.eq[0];
+                    var total = text.scrollHeight - 19 - $(this).height();
+                    var now = text.scrollTop;
+                    var percentage = parseInt((now) * 100 / total);
+                    $("#percentage").html(percentage+"%");
+                })
                 $("body").keyup(function(event) {
                     if (event.keyCode == 37/* || event.keyCode == 38*/) {
                         lastArticle();
                     } else if (event.keyCode == 39/* || event.keyCode == 40*/) {
-                        nextArtucle();
+                        nextArticle();
                     } else if (event.keyCode == 38) {               // 向上翻页
                         var pos = $("#text").scrollTop();
-                        var addon = parseInt($("#text").css("height").match(/[0-9]+/)[0]) - 10;
+                        var addon = parseInt($("#text").css("height").match(/[0-9]+/)[0]) - 20;
                         $("#text").animate({scrollTop: pos-addon}, "fast");
                     } else if (event.keyCode == 40) {               // 向下翻页
                         var pos = $("#text").scrollTop();
-                        var addon = parseInt($("#text").css("height").match(/[0-9]+/)[0]) - 20;
+                        var addon = parseInt($("#text").css("height").match(/[0-9]+/)[0]) - 30;
                         $("#text").animate({scrollTop: pos+addon}, "fast");
                     } else if (event.keyCode == 122) {
                         fullScreen();
                     }
-
                 });
             }
         </script>
     </head>
     <body style="background-color: gray">
-    <div class="toorbar">
-    </div>
-    <img class="close" onclick="closeWindow()" src="images/close.png">
-    <div id="main" class="container" style="margin-top: 80px; background-color: white;">
-        <nav id="nav" class="navbar navbar-default navbar-fixed-top" style="margin-top: 34px; text-align: center;">
-            <div class="container-fluid">
-                <div class="navbar-header" style="text-align: center;">
-                    <button class="btn btn-default navbar-btn" onclick="lastArticle()">上一章</button>
-                    <a href="index.html" class="btn btn-default navbar-btn" role="button">返回目录</a>
-                    <button class="btn btn-default navbar-btn" onclick="nextArticle()">下一章</button>
-                    <button class="btn btn-default navbar-btn" onclick="enlargeFont()">放大字体</button>
-                    <button class="btn btn-default navbar-btn" onclick="shrinkFont()">缩小字体</button>
-                    <button id="btn-full" class="btn btn-default navbar-btn" onclick="fullScreen()">全屏</button>
-                </div>
+    <nav id="nav" class=" toorbar navbar navbar-default navbar-fixed-top" style="text-align: center;">
+        <div class="container-fluid">
+            <div class="navbar-header" style="text-align: center;">
+                <button class="nograg btn btn-default navbar-btn" onclick="lastArticle()">上一章</button>
+                <a href="book.html" class="nograg btn btn-default navbar-btn" role="button">返回目录</a>
+                <button class="nograg btn btn-default navbar-btn" onclick="nextArticle()">下一章</button>
+                <button class="nograg btn btn-default navbar-btn" onclick="enlargeFont()">放大字体</button>
+                <button class="nograg btn btn-default navbar-btn" onclick="shrinkFont()">缩小字体</button>
+                <button id="btn-full" class="nograg btn btn-default navbar-btn" onclick="fullScreen()">全屏</button>
             </div>
-        </nav>
-        <h3 id="title"></h3>
-        <div id="text-div" style="width: 100%; height: 550px; word-wrap: break-word; padding-bottom: 10px;">
+        </div>
+        <img class="close nograg" onclick="closeWindow()" src="images/close.png">
+    </nav>
+    <div id="main" class="container-fluid" style="margin-top: 50px; background-color: white; position: relative">
+        <!--<h3 id="title"></h3>-->
+        <div class="row" style="font-size: 30px; padding: 3px;">
+            <div class="col-xs-10" style="overflow-x: hidden;">
+                <font id="title"></font>
+            </div>
+            <div class="col-xs-2" style="text-align: right;">
+                <font color="gray" id="percentage">0%</font>
+            </div>
+        </div>
+        <div id="text-div" style="width: 100%; height: 609px; word-wrap: break-word; padding-bottom: 10px;">
             <pre id="text" style="background-color: transparent; width: 100%; height: 100%; word-wrap: break-word; white-space: pre-wrap; line-height: 1.25em;">
             </pre>
         </div>
-        <button class="btn btn-default" onclick="lastArticle()">上一章</button>
-        <a class="btn btn-default" href="index.html">目录</a>
-        <button class="btn btn-default" onclick="nextArticle()">下一章</button>
+        <div id="clock">
+        </div>
+        <div id="contorl">
+            <ol>
+                <li>
+                    <button class="li-btn contorl-item btn btn-info" onclick="lastArticle()">上一章</button>
+                </li>
+                <li>
+                    <button class="li-btn contorl-item btn btn-info" onclick="nextArticle()">下一章</button>
+                </li>
+                <li>
+                    <a href="book.html" class="li-btn contorl-item btn btn-info" role="button">返回目录</a>
+                </li>
+                <li>
+                    <button class="li-btn contorl-item btn btn-info" onclick="enlargeFont()">放大字体</button>
+                </li>
+                <li>
+                    <button class="li-btn contorl-item btn btn-info" onclick="shrinkFont()">缩小字体</button>
+                </li>
+                <li>
+                    <booton class="li-btn contorl-item btn btn-info" onclick="fullScreen()">退出全屏</booton>
+                </li>
+                <li>
+                    <booton class="li-btn contorl-item btn btn-warning" onclick="closeWindow()">退出程序</booton>
+                </li>
+            </ol>
+        </div>
     </div>
     </body>
 </html>

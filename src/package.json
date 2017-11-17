@@ -2,8 +2,8 @@
 	"name" : "helloworld",
 	"main" : "index.html",
 	"window": {
-		"height": 700,
-		"width": 700,
+		"height": 750,
+		"width": 600,
 		"title": "Fun Editor",
 		"toolbar": false,
 		"icon": "icon.png",
