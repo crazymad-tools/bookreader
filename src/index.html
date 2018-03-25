@@ -51,5 +51,39 @@
     <div id="main" class="container" style="margin-top: 100px;">
         <div id="booklist"></div>
     </div>
+    <div id="add-book" style="margin-top: 100px;">
+        <input type="file" id="select-file"/>
+        <input type="text" id="book-name" placeholder="输入书籍名字"/> <br />
+        <input type="submit" id="add-submit" class="btn btn-success" value="添加" onclick="add_book()" />
+    </div>
+    <!--<a href="test.html">功能测试页面</a>-->
+    <script>
+        function add_book() {
+            var book_name = $("#book-name").val();
+            if (book_name == "") {
+                return;
+            }
+            var file_name = "books/" + $("#select-file").get(0).files[0].name;
+            var file_path = $("#select-file").get(0).files[0].path;
+            var fs = require("fs");
+            var text = fs.readFileSync(file_path, function(err, data) {
+                return data;
+            });
+            console.log(global.books);
+            global.books.push({
+                bookname : book_name,
+                filename : file_name,
+                bookmark : 0
+            });
+            console.log(global.books);
+            fs.writeFileSync(file_name, text, function(err) {
+                if (err) {
+                    console.log("文件写入失败");
+                } else {
+                    console.log("文件写入成功");
+                }
+            });
+        }
+    </script>
 </body>
 </html>

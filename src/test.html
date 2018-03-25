@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>下拉滚动条滚到底部了吗？</title>
+    <link rel="stylesheet" href="/css/bootstrap.css" />
     <script language="javascript" src="js/jquery.js"></script>
     <script language="javascript">
         $(document).ready(function (){
@@ -22,5 +23,14 @@
 <div id="div1" style="overflow-y:auto; overflow-x:hidden; height:500px;">
     <div style="background-color:#ccc; height:750px;">IE 和 FF 下测试通过</div>
 </div>
+<input id="select-file" class="file" type="file" />
+<input class="btn" type="submit" value="添加" onclick="open_file()" />
+<script>
+    function open_file() {
+        var file = $("#select-file").get(0).files[0];
+        console.log(file);
+        alert(file);
+    }
+</script>
 </body>
 </html>
